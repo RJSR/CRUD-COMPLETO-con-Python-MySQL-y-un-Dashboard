@@ -8,7 +8,7 @@ def connectionBD():
     try:
         # connection = mysql.connector.connect(
         connection = mysql.connector.connect(
-            host="localhost",
+            host="127.0.0.1",
             user="root",
             passwd="",
             database="crud_python",

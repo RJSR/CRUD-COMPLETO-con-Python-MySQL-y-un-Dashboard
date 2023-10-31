@@ -87,7 +87,7 @@ def actualizarProducto():
     if resultData:
         return redirect(url_for('lista_productos'))
     
-@app.route('/actualizar-precio', methods=['POST'])
+@app.route('/actualizar-precio', methods=['GET','POST'])
 def actualizarPrecio():
     resultData = procesar_actualizacion_form_precio(request)
     if resultData:

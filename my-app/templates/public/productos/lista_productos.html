@@ -24,18 +24,18 @@
         <form
         class="form-horizontal mx-auto"
         method="POST"
-        action="{{ url_for('actualizarPrecio', id = respuestaProducto.id_producto ) }}"
+        action="{{ url_for('actualizarPrecio' ) }}"
         autocomplete="off"
         enctype="multipart/form-data">
         <div class="card-body">
           
             
-              <label for="nombre_producto" class="form-label">
+              <label for="tasa" class="form-label">
                 Tasa de Cambio
               </label>
               <input
                 type="text"
-                name="nombre_producto"
+                name="tasa"
                 class="form-control"
                 required />
             
@@ -85,19 +85,7 @@
                 '.')}}
               </td>
               <td width="10px">
-                <a
-                  href="/detalles-producto/{{ producto.id_producto }}"
-                  title="Ver envio"
-                  type="button"
-                  class="btn btn-info btn-sm"
-                  data-bs-toggle="tooltip"
-                  data-bs-offset="0,4"
-                  data-bs-placement="top"
-                  data-bs-html="true"
-                  title="<span>Ver detalles</span>">
-                  <i class="bi bi-eye"></i>
-                  Ver detalles
-                </a>
+
                 <a
                   href="{{ url_for('viewEditarProducto', id = producto.id_producto) }}"
                   class="btn btn-success btn-sm"

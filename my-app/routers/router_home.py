@@ -6,74 +6,72 @@ from mysql.connector.errors import Error
 # Importando cenexión a BD
 from controllers.funciones_home import *
 
-PATH_URL = "public/empleados"
+PATH_URL = "public/productos"
 
 
-@app.route('/registrar-empleado', methods=['GET'])
+@app.route('/registrar-producto', methods=['GET'])
 def viewFormEmpleado():
     if 'conectado' in session:
-        return render_template(f'{PATH_URL}/form_empleado.html')
+        return render_template(f'{PATH_URL}/form_producto.html')
     else:
         flash('primero debes iniciar sesión.', 'error')
         return redirect(url_for('inicio'))
 
 
-@app.route('/form-registrar-empleado', methods=['POST'])
+@app.route('/form-registrar-producto', methods=['POST'])
 def formEmpleado():
     if 'conectado' in session:
-        if 'foto_empleado' in request.files:
-            foto_perfil = request.files['foto_empleado']
-            resultado = procesar_form_empleado(request.form, foto_perfil)
+            resultado = procesar_form_producto(request.form)
             if resultado:
-                return redirect(url_for('lista_empleados'))
+                return redirect(url_for('lista_productos'))
             else:
-                flash('El empleado NO fue registrado.', 'error')
-                return render_template(f'{PATH_URL}/form_empleado.html')
+                flash('El producto NO fue registrado.', 'error')
+                return render_template(f'{PATH_URL}/form_producto.html')
     else:
         flash('primero debes iniciar sesión.', 'error')
         return redirect(url_for('inicio'))
 
 
-@app.route('/lista-de-empleados', methods=['GET'])
-def lista_empleados():
+@app.route('/lista-de-productos', methods=['GET'])
+def lista_productos():
     if 'conectado' in session:
-        return render_template(f'{PATH_URL}/lista_empleados.html', empleados=sql_lista_empleadosBD())
+        return render_template(f'{PATH_URL}/lista_productos.html', productos=sql_lista_productosBD())
     else:
         flash('primero debes iniciar sesión.', 'error')
         return redirect(url_for('inicio'))
 
 
-@app.route("/detalles-empleado/", methods=['GET'])
-@app.route("/detalles-empleado/<int:idEmpleado>", methods=['GET'])
-def detalleEmpleado(idEmpleado=None):
+@app.route("/detalles-producto/", methods=['GET'])
+@app.route("/detalles-producto/<int:idProducto>", methods=['GET'])
+def detalleProducto(idProducto=None):
     if 'conectado' in session:
         # Verificamos si el parámetro idEmpleado es None o no está presente en la URL
-        if idEmpleado is None:
+        if idProducto is None:
             return redirect(url_for('inicio'))
         else:
-            detalle_empleado = sql_detalles_empleadosBD(idEmpleado) or []
-            return render_template(f'{PATH_URL}/detalles_empleado.html', detalle_empleado=detalle_empleado)
+            detalle_empleado = sql_detalles_productosBD(idProducto) or []
+            return render_template(f'{PATH_URL}/detalles_producto.html', detalle_empleado=detalle_empleado)
     else:
         flash('Primero debes iniciar sesión.', 'error')
         return redirect(url_for('inicio'))
 
 
 # Buscadon de empleados
-@app.route("/buscando-empleado", methods=['POST'])
-def viewBuscarEmpleadoBD():
-    resultadoBusqueda = buscarEmpleadoBD(request.json['busqueda'])
+@app.route("/buscando-producto", methods=['POST'])
+def viewBuscarProductoBD():
+    resultadoBusqueda = buscarproductoBD(request.json['busqueda'])
     if resultadoBusqueda:
-        return render_template(f'{PATH_URL}/resultado_busqueda_empleado.html', dataBusqueda=resultadoBusqueda)
+        return render_template(f'{PATH_URL}/resultado_busqueda_producto.html', dataBusqueda=resultadoBusqueda)
     else:
         return jsonify({'fin': 0})
 
 
-@app.route("/editar-empleado/<int:id>", methods=['GET'])
-def viewEditarEmpleado(id):
+@app.route("/editar-producto/<int:id>", methods=['GET'])
+def viewEditarProducto(id):
     if 'conectado' in session:
-        respuestaEmpleado = buscarEmpleadoUnico(id)
-        if respuestaEmpleado:
-            return render_template(f'{PATH_URL}/form_empleado_update.html', respuestaEmpleado=respuestaEmpleado)
+        respuestaProducto = buscarproductoUnico(id)
+        if respuestaProducto:
+            return render_template(f'{PATH_URL}/form_producto_update.html', respuestaProducto=respuestaProducto)
         else:
             flash('El empleado no existe.', 'error')
             return redirect(url_for('inicio'))
@@ -82,12 +80,12 @@ def viewEditarEmpleado(id):
         return redirect(url_for('inicio'))
 
 
-# Recibir formulario para actulizar informacion de empleado
-@app.route('/actualizar-empleado', methods=['POST'])
-def actualizarEmpleado():
+# Recibir formulario para actulizar informacion de producto
+@app.route('/actualizar-producto', methods=['POST'])
+def actualizarProducto():
     resultData = procesar_actualizacion_form(request)
     if resultData:
-        return redirect(url_for('lista_empleados'))
+        return redirect(url_for('lista_producto'))
 
 
 @app.route("/lista-de-usuarios", methods=['GET'])
@@ -107,15 +105,15 @@ def borrarUsuario(id):
         return redirect(url_for('usuarios'))
 
 
-@app.route('/borrar-empleado/<string:id_empleado>/<string:foto_empleado>', methods=['GET'])
-def borrarEmpleado(id_empleado, foto_empleado):
-    resp = eliminarEmpleado(id_empleado, foto_empleado)
+@app.route('/borrar-empleado/<string:id_producto>', methods=['GET'])
+def borrarProducto(id_producto):
+    resp = eliminarproducto(id_producto)
     if resp:
         flash('El Empleado fue eliminado correctamente', 'success')
-        return redirect(url_for('lista_empleados'))
+        return redirect(url_for('lista_productos'))
 
 
-@app.route("/descargar-informe-empleados/", methods=['GET'])
+@app.route("/descargar-informe-productos/", methods=['GET'])
 def reporteBD():
     if 'conectado' in session:
         return generarReporteExcel()

@@ -18,22 +18,24 @@ import openpyxl  # Para generar el excel
 from flask import send_file
 
 
-def procesar_form_empleado(dataForm, foto_perfil):
+def procesar_form_producto(dataForm):
     # Formateando Salario
-    salario_sin_puntos = re.sub('[^0-9]+', '', dataForm['salario_empleado'])
+    precio_sin_puntos = re.sub('[^0-9]+', '', dataForm['precio_dolar'])
+    precio_sin_puntos_bsd = re.sub('[^0-9]+', '', dataForm['precio_bsd'])
     # convertir salario a INT
-    salario_entero = int(salario_sin_puntos)
+    precio_dolar_entero = int(precio_sin_puntos)
+    precio_bsd_entero = int(precio_sin_puntos_bsd)
 
-    result_foto_perfil = procesar_imagen_perfil(foto_perfil)
+    
     try:
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
 
-                sql = "INSERT INTO tbl_empleados (nombre_empleado, apellido_empleado, sexo_empleado, telefono_empleado, email_empleado, profesion_empleado, foto_empleado, salario_empleado) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+                sql = "INSERT INTO tbl_productos (nombre_producto, marca_producto, cantidad, precio_dolar, precio_bsd, ) VALUES (%s, %s, %s, %s, %s)"
 
                 # Creando una tupla con los valores del INSERT
-                valores = (dataForm['nombre_empleado'], dataForm['apellido_empleado'], dataForm['sexo_empleado'],
-                           dataForm['telefono_empleado'], dataForm['email_empleado'], dataForm['profesion_empleado'], result_foto_perfil, salario_entero)
+                valores = (dataForm['nombre_producto'], dataForm['marca_producto'], dataForm['cantidad'],
+                           precio_dolar_entero, precio_bsd_entero)
                 cursor.execute(sql, valores)
 
                 conexion_MySQLdb.commit()
@@ -41,140 +43,125 @@ def procesar_form_empleado(dataForm, foto_perfil):
                 return resultado_insert
 
     except Exception as e:
-        return f'Se produjo un error en procesar_form_empleado: {str(e)}'
+        return f'Se produjo un error en procesar_form_producto: {str(e)}'
 
 
-def procesar_imagen_perfil(foto):
-    try:
-        # Nombre original del archivo
-        filename = secure_filename(foto.filename)
-        extension = os.path.splitext(filename)[1]
+# def procesar_imagen_perfil(foto):
+#     try:
+#         # Nombre original del archivo
+#         filename = secure_filename(foto.filename)
+#         extension = os.path.splitext(filename)[1]
 
-        # Creando un string de 50 caracteres
-        nuevoNameFile = (uuid.uuid4().hex + uuid.uuid4().hex)[:100]
-        nombreFile = nuevoNameFile + extension
+#         # Creando un string de 50 caracteres
+#         nuevoNameFile = (uuid.uuid4().hex + uuid.uuid4().hex)[:100]
+#         nombreFile = nuevoNameFile + extension
 
-        # Construir la ruta completa de subida del archivo
-        basepath = os.path.abspath(os.path.dirname(__file__))
-        upload_dir = os.path.join(basepath, f'../static/fotos_empleados/')
+#         # Construir la ruta completa de subida del archivo
+#         basepath = os.path.abspath(os.path.dirname(__file__))
+#         upload_dir = os.path.join(basepath, f'../static/fotos_productos/')
 
-        # Validar si existe la ruta y crearla si no existe
-        if not os.path.exists(upload_dir):
-            os.makedirs(upload_dir)
-            # Dando permiso a la carpeta
-            os.chmod(upload_dir, 0o755)
+#         # Validar si existe la ruta y crearla si no existe
+#         if not os.path.exists(upload_dir):
+#             os.makedirs(upload_dir)
+#             # Dando permiso a la carpeta
+#             os.chmod(upload_dir, 0o755)
 
-        # Construir la ruta completa de subida del archivo
-        upload_path = os.path.join(upload_dir, nombreFile)
-        foto.save(upload_path)
+#         # Construir la ruta completa de subida del archivo
+#         upload_path = os.path.join(upload_dir, nombreFile)
+#         foto.save(upload_path)
 
-        return nombreFile
+#         return nombreFile
 
-    except Exception as e:
-        print("Error al procesar archivo:", e)
-        return []
+#     except Exception as e:
+#         print("Error al procesar archivo:", e)
+#         return []
 
 
-# Lista de Empleados
-def sql_lista_empleadosBD():
+# Lista de productos
+def sql_lista_productosBD():
     try:
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
                 querySQL = (f"""
                     SELECT 
-                        e.id_empleado,
-                        e.nombre_empleado, 
-                        e.apellido_empleado,
-                        e.salario_empleado,
-                        e.foto_empleado,
-                        CASE
-                            WHEN e.sexo_empleado = 1 THEN 'Masculino'
-                            ELSE 'Femenino'
-                        END AS sexo_empleado
-                    FROM tbl_empleados AS e
-                    ORDER BY e.id_empleado DESC
+                        e.id_producto,
+                        e.nombre_producto, 
+                        e.marca_producto,
+                        e.cantidad,
+                        e.precio_dolar,
+                        e.precio_bsd
+                    FROM tbl_productos AS e
+                    ORDER BY e.id_producto DESC
                     """)
                 cursor.execute(querySQL,)
-                empleadosBD = cursor.fetchall()
-        return empleadosBD
+                productosBD = cursor.fetchall()
+        return productosBD
     except Exception as e:
         print(
-            f"Errro en la función sql_lista_empleadosBD: {e}")
+            f"Error en la función sql_lista_productosBD: {e}")
         return None
 
 
-# Detalles del Empleado
-def sql_detalles_empleadosBD(idEmpleado):
+# Detalles del producto
+def sql_detalles_productosBD(idproducto):
     try:
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
                 querySQL = ("""
                     SELECT 
-                        e.id_empleado,
-                        e.nombre_empleado, 
-                        e.apellido_empleado,
-                        e.salario_empleado,
-                        CASE
-                            WHEN e.sexo_empleado = 1 THEN 'Masculino'
-                            ELSE 'Femenino'
-                        END AS sexo_empleado,
-                        e.telefono_empleado, 
-                        e.email_empleado,
-                        e.profesion_empleado,
-                        e.foto_empleado,
+                        e.id_producto,
+                        e.nombre_producto, 
+                        e.marca_producto,
+                        e.cantidad,
+                        e.precio_dolar,
+                        e.precio_bsd
                         DATE_FORMAT(e.fecha_registro, '%Y-%m-%d %h:%i %p') AS fecha_registro
-                    FROM tbl_empleados AS e
-                    WHERE id_empleado =%s
-                    ORDER BY e.id_empleado DESC
+                    FROM tbl_productos AS e
+                    WHERE id_producto =%s
+                    ORDER BY e.id_producto DESC
                     """)
-                cursor.execute(querySQL, (idEmpleado,))
-                empleadosBD = cursor.fetchone()
-        return empleadosBD
+                cursor.execute(querySQL, (idproducto,))
+                productosBD = cursor.fetchone()
+        return productosBD
     except Exception as e:
         print(
-            f"Errro en la función sql_detalles_empleadosBD: {e}")
+            f"Error en la función sql_detalles_productosBD: {e}")
         return None
 
 
-# Funcion Empleados Informe (Reporte)
-def empleadosReporte():
+# Funcion productos Informe (Reporte)
+def productosReporte():
     try:
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
                 querySQL = ("""
                     SELECT 
-                        e.id_empleado,
-                        e.nombre_empleado, 
-                        e.apellido_empleado,
-                        e.salario_empleado,
-                        e.email_empleado,
-                        e.telefono_empleado,
-                        e.profesion_empleado,
-                        DATE_FORMAT(e.fecha_registro, '%d de %b %Y %h:%i %p') AS fecha_registro,
-                        CASE
-                            WHEN e.sexo_empleado = 1 THEN 'Masculino'
-                            ELSE 'Femenino'
-                        END AS sexo_empleado
-                    FROM tbl_empleados AS e
-                    ORDER BY e.id_empleado DESC
+                        e.id_producto,
+                        e.nombre_producto, 
+                        e.marca_producto,
+                        e.cantidad,
+                        e.precio_dolar,
+                        e.precio_bsd
+                    FROM tbl_productos AS e
+                    ORDER BY e.id_producto DESC
                     """)
                 cursor.execute(querySQL,)
-                empleadosBD = cursor.fetchall()
-        return empleadosBD
+                productosBD = cursor.fetchall()
+        return productosBD
     except Exception as e:
         print(
-            f"Errro en la función empleadosReporte: {e}")
+            f"Error en la función productosReporte: {e}")
         return None
 
 
 def generarReporteExcel():
-    dataEmpleados = empleadosReporte()
+    dataproductos = productosReporte()
     wb = openpyxl.Workbook()
     hoja = wb.active
 
     # Agregar la fila de encabezado con los títulos
-    cabeceraExcel = ("Nombre", "Apellido", "Sexo",
-                     "Telefono", "Email", "Profesión", "Salario", "Fecha de Ingreso")
+    cabeceraExcel = ("Nombre", "Marca", "Cantidad",
+                     "Precio $", "Precio Bs", "Fecha de Ingreso")
 
     hoja.append(cabeceraExcel)
 
@@ -182,28 +169,25 @@ def generarReporteExcel():
     formato_moneda_colombiana = '#,##0'
 
     # Agregar los registros a la hoja
-    for registro in dataEmpleados:
-        nombre_empleado = registro['nombre_empleado']
-        apellido_empleado = registro['apellido_empleado']
-        sexo_empleado = registro['sexo_empleado']
-        telefono_empleado = registro['telefono_empleado']
-        email_empleado = registro['email_empleado']
-        profesion_empleado = registro['profesion_empleado']
-        salario_empleado = registro['salario_empleado']
-        fecha_registro = registro['fecha_registro']
+    for registro in dataproductos:
+        nombre_producto = registro['nombre_producto']
+        marca_producto = registro['marca_producto']
+        cantidad = registro['cantidad']
+        precio_dolar = registro['precio_dolar']
+        precio_bsd = registro['precio_bsd']
+
 
         # Agregar los valores a la hoja
-        hoja.append((nombre_empleado, apellido_empleado, sexo_empleado, telefono_empleado, email_empleado, profesion_empleado,
-                     salario_empleado, fecha_registro))
+        hoja.append((nombre_producto, marca_producto, cantidad, precio_dolar, precio_bsd))
 
         # Itera a través de las filas y aplica el formato a la columna G
         for fila_num in range(2, hoja.max_row + 1):
-            columna = 7  # Columna G
+            columna = 4  # Columna G
             celda = hoja.cell(row=fila_num, column=columna)
             celda.number_format = formato_moneda_colombiana
 
     fecha_actual = datetime.datetime.now()
-    archivoExcel = f"Reporte_empleados_{fecha_actual.strftime('%Y_%m_%d')}.xlsx"
+    archivoExcel = f"Reporte_productos_{fecha_actual.strftime('%Y_%m_%d')}.xlsx"
     carpeta_descarga = "../static/downloads-excel"
     ruta_descarga = os.path.join(os.path.dirname(
         os.path.abspath(__file__)), carpeta_descarga)
@@ -220,23 +204,21 @@ def generarReporteExcel():
     return send_file(ruta_archivo, as_attachment=True)
 
 
-def buscarEmpleadoBD(search):
+def buscarproductoBD(search):
     try:
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as mycursor:
                 querySQL = ("""
                         SELECT 
-                            e.id_empleado,
-                            e.nombre_empleado, 
-                            e.apellido_empleado,
-                            e.salario_empleado,
-                            CASE
-                                WHEN e.sexo_empleado = 1 THEN 'Masculino'
-                                ELSE 'Femenino'
-                            END AS sexo_empleado
-                        FROM tbl_empleados AS e
-                        WHERE e.nombre_empleado LIKE %s 
-                        ORDER BY e.id_empleado DESC
+                            e.id_producto,
+                            e.nombre_producto, 
+                            e.marca_producto,
+                            e.cantidad,
+                            e.precio_dolar,
+                            e.precio_bsd
+                        FROM tbl_productos AS e
+                        WHERE e.nombre_producto LIKE %s 
+                        ORDER BY e.id_producto DESC
                     """)
                 search_pattern = f"%{search}%"  # Agregar "%" alrededor del término de búsqueda
                 mycursor.execute(querySQL, (search_pattern,))
@@ -244,34 +226,31 @@ def buscarEmpleadoBD(search):
                 return resultado_busqueda
 
     except Exception as e:
-        print(f"Ocurrió un error en def buscarEmpleadoBD: {e}")
+        print(f"Ocurrió un error en def buscarproductoBD: {e}")
         return []
 
 
-def buscarEmpleadoUnico(id):
+def buscarproductoUnico(id):
     try:
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as mycursor:
                 querySQL = ("""
                         SELECT 
-                            e.id_empleado,
-                            e.nombre_empleado, 
-                            e.apellido_empleado,
-                            e.sexo_empleado,
-                            e.telefono_empleado,
-                            e.email_empleado,
-                            e.profesion_empleado,
-                            e.salario_empleado,
-                            e.foto_empleado
-                        FROM tbl_empleados AS e
-                        WHERE e.id_empleado =%s LIMIT 1
+                            e.id_producto,
+                            e.nombre_producto, 
+                            e.marca_producto,
+                            e.cantidad,
+                            e.precio_dolar,
+                            e.precio_bsd
+                        FROM tbl_productos AS e
+                        WHERE e.id_producto =%s LIMIT 1
                     """)
                 mycursor.execute(querySQL, (id,))
-                empleado = mycursor.fetchone()
-                return empleado
+                producto = mycursor.fetchone()
+                return producto
 
     except Exception as e:
-        print(f"Ocurrió un error en def buscarEmpleadoUnico: {e}")
+        print(f"Ocurrió un error en def buscarproductoUnico: {e}")
         return []
 
 
@@ -279,54 +258,32 @@ def procesar_actualizacion_form(data):
     try:
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
-                nombre_empleado = data.form['nombre_empleado']
-                apellido_empleado = data.form['apellido_empleado']
-                sexo_empleado = data.form['sexo_empleado']
-                telefono_empleado = data.form['telefono_empleado']
-                email_empleado = data.form['email_empleado']
-                profesion_empleado = data.form['profesion_empleado']
+                nombre_producto = data.form['nombre_producto']
+                marca_producto = data.form['marca_producto']
+                cantidad = data.form['cantidad']
 
-                salario_sin_puntos = re.sub(
-                    '[^0-9]+', '', data.form['salario_empleado'])
-                salario_empleado = int(salario_sin_puntos)
-                id_empleado = data.form['id_empleado']
+                precio_sin_puntos_dolar = re.sub(
+                    '[^0-9]+', '', data.form['precio_dolar'])
+                precio_dolar = int(precio_sin_puntos_dolar)
 
-                if data.files['foto_empleado']:
-                    file = data.files['foto_empleado']
-                    fotoForm = procesar_imagen_perfil(file)
+                precio_sin_puntos_bsd = re.sub(
+                    '[^0-9]+', '', data.form['precio_bsd'])
+                precio_bsd = int(precio_sin_puntos_bsd)
 
-                    querySQL = """
-                        UPDATE tbl_empleados
-                        SET 
-                            nombre_empleado = %s,
-                            apellido_empleado = %s,
-                            sexo_empleado = %s,
-                            telefono_empleado = %s,
-                            email_empleado = %s,
-                            profesion_empleado = %s,
-                            salario_empleado = %s,
-                            foto_empleado = %s
-                        WHERE id_empleado = %s
-                    """
-                    values = (nombre_empleado, apellido_empleado, sexo_empleado,
-                              telefono_empleado, email_empleado, profesion_empleado,
-                              salario_empleado, fotoForm, id_empleado)
-                else:
-                    querySQL = """
-                        UPDATE tbl_empleados
-                        SET 
-                            nombre_empleado = %s,
-                            apellido_empleado = %s,
-                            sexo_empleado = %s,
-                            telefono_empleado = %s,
-                            email_empleado = %s,
-                            profesion_empleado = %s,
-                            salario_empleado = %s
-                        WHERE id_empleado = %s
-                    """
-                    values = (nombre_empleado, apellido_empleado, sexo_empleado,
-                              telefono_empleado, email_empleado, profesion_empleado,
-                              salario_empleado, id_empleado)
+                id_producto = data.form['id_producto']
+                
+                querySQL = """
+                    UPDATE tbl_productos
+                    SET 
+                        nombre_producto = %s,
+                        marca_producto = %s,
+                        cantidad = %s,
+                        precio_dolar = %s,
+                        precio_bsd = %s,
+                    WHERE id_producto = %s
+                """
+                values = (nombre_producto, marca_producto, cantidad,
+                            precio_dolar, precio_bsd, id_producto)
 
                 cursor.execute(querySQL, values)
                 conexion_MySQLdb.commit()
@@ -351,28 +308,20 @@ def lista_usuariosBD():
         return []
 
 
-# Eliminar uEmpleado
-def eliminarEmpleado(id_empleado, foto_empleado):
+# Eliminar un producto
+def eliminarproducto(id_producto, ):
     try:
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
-                querySQL = "DELETE FROM tbl_empleados WHERE id_empleado=%s"
-                cursor.execute(querySQL, (id_empleado,))
+                querySQL = "DELETE FROM tbl_productos WHERE id_producto=%s"
+                cursor.execute(querySQL, (id_producto,))
                 conexion_MySQLdb.commit()
                 resultado_eliminar = cursor.rowcount
 
-                if resultado_eliminar:
-                    # Eliminadon foto_empleado desde el directorio
-                    basepath = path.dirname(__file__)
-                    url_File = path.join(
-                        basepath, '../static/fotos_empleados', foto_empleado)
-
-                    if path.exists(url_File):
-                        remove(url_File)  # Borrar foto desde la carpeta
 
         return resultado_eliminar
     except Exception as e:
-        print(f"Error en eliminarEmpleado : {e}")
+        print(f"Error en eliminarproducto : {e}")
         return []
 
 

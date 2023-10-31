@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 31-10-2023 a las 17:37:47
+-- Tiempo de generación: 31-10-2023 a las 19:39:51
 -- Versión del servidor: 10.4.28-MariaDB
 -- Versión de PHP: 8.2.4
 
@@ -42,10 +42,10 @@ CREATE TABLE `tbl_productos` (
 --
 
 INSERT INTO `tbl_productos` (`id_producto`, `nombre_producto`, `marca_producto`, `cantidad`, `precio_dolar`, `precio_bsd`, `fecha_registro`) VALUES
-(1, 'Urian', 'Viera', 1, 3500000, 0, '2023-08-23 17:04:49'),
-(2, 'Brenda', 'Viera', 3, 1200000, 0, '2023-08-23 17:05:34'),
-(3, 'Alejandro', 'Torres', 5, 2100, 0, '2023-08-23 17:06:13'),
-(8, 'AB', 'a', 1, 1, 1, '2023-10-31 14:57:02');
+(1, 'Harina de maiz', 'Pan', 5, 1, 35, '2023-08-23 17:04:49'),
+(2, 'Malta x6', 'Polar', 3, 10, 350, '2023-08-23 17:05:34'),
+(3, 'Chocolate con leche', 'Savoy', 20, 1, 35, '2023-08-23 17:06:13'),
+(8, 'Arroz', 'Mary', 5, 2, 70, '2023-10-31 14:57:02');
 
 -- --------------------------------------------------------
 

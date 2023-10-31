@@ -31,11 +31,10 @@ def procesar_form_producto(dataForm):
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
 
-                sql = "INSERT INTO tbl_productos (nombre_producto, marca_producto, cantidad, precio_dolar, precio_bsd, ) VALUES (%s, %s, %s, %s, %s)"
+                sql = "INSERT INTO tbl_productos (nombre_producto, marca_producto, cantidad, precio_dolar, precio_bsd) VALUES (%s, %s, %s, %s, %s)"
 
                 # Creando una tupla con los valores del INSERT
-                valores = (dataForm['nombre_producto'], dataForm['marca_producto'], dataForm['cantidad'],
-                           precio_dolar_entero, precio_bsd_entero)
+                valores = (dataForm['nombre_producto'], dataForm['marca_producto'], dataForm['cantidad'],precio_dolar_entero, precio_bsd_entero)
                 cursor.execute(sql, valores)
 
                 conexion_MySQLdb.commit()
@@ -91,7 +90,7 @@ def sql_lista_productosBD():
                         e.precio_dolar,
                         e.precio_bsd
                     FROM tbl_productos AS e
-                    ORDER BY e.id_producto DESC
+                    ORDER BY e.id_producto ASC
                     """)
                 cursor.execute(querySQL,)
                 productosBD = cursor.fetchall()
@@ -114,13 +113,13 @@ def sql_detalles_productosBD(idproducto):
                         e.marca_producto,
                         e.cantidad,
                         e.precio_dolar,
-                        e.precio_bsd
+                        e.precio_bsd,
                         DATE_FORMAT(e.fecha_registro, '%Y-%m-%d %h:%i %p') AS fecha_registro
                     FROM tbl_productos AS e
                     WHERE id_producto =%s
-                    ORDER BY e.id_producto DESC
+                    ORDER BY e.id_producto ASC
                     """)
-                cursor.execute(querySQL, (idproducto,))
+                cursor.execute(querySQL, (idproducto))
                 productosBD = cursor.fetchone()
         return productosBD
     except Exception as e:
@@ -143,7 +142,7 @@ def productosReporte():
                         e.precio_dolar,
                         e.precio_bsd
                     FROM tbl_productos AS e
-                    ORDER BY e.id_producto DESC
+                    ORDER BY e.id_producto ASC
                     """)
                 cursor.execute(querySQL,)
                 productosBD = cursor.fetchall()
@@ -161,7 +160,7 @@ def generarReporteExcel():
 
     # Agregar la fila de encabezado con los títulos
     cabeceraExcel = ("Nombre", "Marca", "Cantidad",
-                     "Precio $", "Precio Bs", "Fecha de Ingreso")
+                     "Precio $", "Precio Bs")
 
     hoja.append(cabeceraExcel)
 
@@ -218,7 +217,7 @@ def buscarproductoBD(search):
                             e.precio_bsd
                         FROM tbl_productos AS e
                         WHERE e.nombre_producto LIKE %s 
-                        ORDER BY e.id_producto DESC
+                        ORDER BY e.id_producto ASC
                     """)
                 search_pattern = f"%{search}%"  # Agregar "%" alrededor del término de búsqueda
                 mycursor.execute(querySQL, (search_pattern,))
@@ -279,11 +278,10 @@ def procesar_actualizacion_form(data):
                         marca_producto = %s,
                         cantidad = %s,
                         precio_dolar = %s,
-                        precio_bsd = %s,
+                        precio_bsd = %s
                     WHERE id_producto = %s
                 """
-                values = (nombre_producto, marca_producto, cantidad,
-                            precio_dolar, precio_bsd, id_producto)
+                values = (nombre_producto, marca_producto, cantidad, precio_dolar, precio_bsd, id_producto)
 
                 cursor.execute(querySQL, values)
                 conexion_MySQLdb.commit()
@@ -293,6 +291,43 @@ def procesar_actualizacion_form(data):
         print(f"Ocurrió un error en procesar_actualizacion_form: {e}")
         return None
 
+def procesar_actualizacion_form_precio(data):
+    try:
+        with connectionBD() as conexion_MySQLdb:
+            with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                nombre_producto = data.form['nombre_producto']
+                marca_producto = data.form['marca_producto']
+                cantidad = data.form['cantidad']
+
+                precio_sin_puntos_dolar = re.sub(
+                    '[^0-9]+', '', data.form['precio_dolar'])
+                precio_dolar = int(precio_sin_puntos_dolar)
+
+                precio_sin_puntos_bsd = re.sub(
+                    '[^0-9]+', '', data.form['precio_bsd'])
+                precio_bsd = int(precio_sin_puntos_bsd)
+
+                id_producto = data.form['id_producto']
+                
+                querySQL = """
+                    UPDATE tbl_productos
+                    SET 
+                        nombre_producto = %s,
+                        marca_producto = %s,
+                        cantidad = %s,
+                        precio_dolar = %s,
+                        precio_bsd = %s
+                    WHERE id_producto = %s
+                """
+                values = (nombre_producto, marca_producto, cantidad, precio_dolar, precio_bsd, id_producto)
+
+                cursor.execute(querySQL, values)
+                conexion_MySQLdb.commit()
+
+        return cursor.rowcount or []
+    except Exception as e:
+        print(f"Ocurrió un error en procesar_actualizacion_form: {e}")
+        return None
 
 # Lista de Usuarios creados
 def lista_usuariosBD():
@@ -309,7 +344,7 @@ def lista_usuariosBD():
 
 
 # Eliminar un producto
-def eliminarproducto(id_producto, ):
+def eliminarproducto(id_producto):
     try:
         with connectionBD() as conexion_MySQLdb:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:

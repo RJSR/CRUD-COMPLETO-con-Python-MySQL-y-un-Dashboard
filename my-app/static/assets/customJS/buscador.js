@@ -1,6 +1,6 @@
 async function buscadorTable(tableId) {
   let input, busqueda, url;
-  url = "/buscando-empleado";
+  url = "/buscando-producto";
 
   input = document.getElementById("search");
   busqueda = input.value.toUpperCase();

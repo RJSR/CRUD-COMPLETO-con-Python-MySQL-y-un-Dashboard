@@ -45,12 +45,12 @@ def lista_productos():
 @app.route("/detalles-producto/<int:idProducto>", methods=['GET'])
 def detalleProducto(idProducto=None):
     if 'conectado' in session:
-        # Verificamos si el parámetro idEmpleado es None o no está presente en la URL
+        # Verificamos si el parámetro idProducto es None o no está presente en la URL
         if idProducto is None:
             return redirect(url_for('inicio'))
         else:
             detalle_empleado = sql_detalles_productosBD(idProducto) or []
-            return render_template(f'{PATH_URL}/detalles_producto.html', detalle_empleado=detalle_empleado)
+            return render_template(f'{PATH_URL}/detalles_producto.html', detalle_empleado = detalle_empleado)
     else:
         flash('Primero debes iniciar sesión.', 'error')
         return redirect(url_for('inicio'))
@@ -85,7 +85,13 @@ def viewEditarProducto(id):
 def actualizarProducto():
     resultData = procesar_actualizacion_form(request)
     if resultData:
-        return redirect(url_for('lista_producto'))
+        return redirect(url_for('lista_productos'))
+    
+@app.route('/actualizar-precio', methods=['POST'])
+def actualizarPrecio():
+    resultData = procesar_actualizacion_form_precio(request)
+    if resultData:
+        return redirect(url_for('lista_productos'))
 
 
 @app.route("/lista-de-usuarios", methods=['GET'])
@@ -105,11 +111,11 @@ def borrarUsuario(id):
         return redirect(url_for('usuarios'))
 
 
-@app.route('/borrar-empleado/<string:id_producto>', methods=['GET'])
+@app.route('/borrar-producto/<string:id_producto>', methods=['GET'])
 def borrarProducto(id_producto):
     resp = eliminarproducto(id_producto)
     if resp:
-        flash('El Empleado fue eliminado correctamente', 'success')
+        flash('El Producto fue eliminado correctamente', 'success')
         return redirect(url_for('lista_productos'))
 
 

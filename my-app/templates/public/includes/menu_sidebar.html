@@ -21,7 +21,7 @@
       class="menu-item {% if request.path == '/registrar-empleado' %} active {% endif %}">
       <a href="{{ url_for('viewFormEmpleado') }}" class="menu-link">
         <i class="menu-icon bi bi-person-bounding-box"></i>
-        <div data-i18n="Basic">Registrar Empleado</div>
+        <div data-i18n="Basic">Registrar Producto</div>
       </a>
     </li>
     <li
@@ -32,8 +32,8 @@
       </a>
     </li>
     <li
-      class="menu-item {% if request.path == '/descargar-informe-empleados' %} active {% endif %}">
-      <a href="/descargar-informe-empleados" class="menu-link">
+      class="menu-item {% if request.path == '/descargar-informe-productos' %} active {% endif %}">
+      <a href="/descargar-informe-productos" class="menu-link">
         <i class="menu-icon bi bi-file-earmark-spreadsheet-fill"></i>
         <div data-i18n="Tables">Reportes</div>
       </a>

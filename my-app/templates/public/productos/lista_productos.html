@@ -20,6 +20,34 @@
           placeholder="Buscar producto..."
           onkeyup="buscadorTable('tbl_productos')" />
       </div>
+      <div class="col-md-6 mt-4 py-2">
+        <form
+        class="form-horizontal mx-auto"
+        method="POST"
+        action="{{ url_for('actualizarPrecio', id = respuestaProducto.id_producto ) }}"
+        autocomplete="off"
+        enctype="multipart/form-data">
+        <div class="card-body">
+          
+            
+              <label for="nombre_producto" class="form-label">
+                Tasa de Cambio
+              </label>
+              <input
+                type="text"
+                name="nombre_producto"
+                class="form-control"
+                required />
+            
+          
+          <div class="mt-4 py-2 text-center">
+            <button type="submit" class="btn rounded-pill btn-primary">
+              Actualizar Precio
+              <i class="bi bi-arrow-clockwise"></i>
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <div class="row justify-content-center mb-2">

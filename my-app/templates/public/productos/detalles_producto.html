@@ -16,10 +16,10 @@
   <div class="row justify-content-center mb-2">
     <div class="col-md-12">
       <h3 class="text-center mt-5 mb-3">
-        <a href="/lista-de-empleados">
+        <a href="/lista-de-productos">
           <i class="bi bi-arrow-left-circle"></i>
         </a>
-        INFORMACIÓN DEL EMPLEADO
+        INFORMACIÓN DEL PRODUCTO
       </h3>
       <hr />
     </div>
@@ -30,81 +30,55 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-6">
-            <label for="nombre_empleado" class="form-label">
-              Nombre del empleado
+            <label for="nombre_producto" class="form-label">
+              Nombre del Producto
             </label>
             <br />
-            {{ detalle_empleado.nombre_empleado}}
+            {{ detalle_empleado.nombre_producto}}
           </div>
           <div class="col-md-6">
-            <label for="apellido_empleado" class="form-label">
-              Apellido del empleado
+            <label for="marca_producto" class="form-label">
+              Marca del Producto
             </label>
             <br />
-            {{ detalle_empleado.apellido_empleado}}
+            {{ detalle_empleado.marca_producto}}
           </div>
         </div>
 
         <div class="row mt-2">
           <div class="col-md-6">
-            <label for="sexo_empleado" class="form-label">
-              Sexo del empleado
+            <label for="cantidad" class="form-label">
+              Cantidad de Productos
             </label>
             <br />
-            {{ detalle_empleado.sexo_empleado}}
+            {{ detalle_empleado.cantidad}}
           </div>
           <div class="col-md-6">
-            <label for="telefono_empleado" class="form-label">
-              Telefono del empleado
+            <label for="precio_dolar" class="form-label">
+              Precio en Dólares
             </label>
             <br />
-            {{ detalle_empleado.telefono_empleado}}
+            {{ detalle_empleado.precio_dolar}}
           </div>
         </div>
 
         <div class="row mt-2">
           <div class="col-md-6">
-            <label for="email_empleado" class="form-label">
-              Email del empleado
+            <label for="precio_bsd" class="form-label">
+              Precio en Bólvares
             </label>
             <br />
-            {{ detalle_empleado.email_empleado}}
-          </div>
-          <div class="col-md-6">
-            <label for="profesion_empleado" class="form-label">
-              Profesión del empleado
-            </label>
-            <br />
-            {{ detalle_empleado.profesion_empleado}}
+            {{ detalle_empleado.precio_bsd}}
           </div>
         </div>
 
-        <div class="row mt-2">
-          <div class="col-md-6">
-            <label for="salario_empleado" class="form-label">
-              Salario del empleado
-            </label>
-            <br />
-            $ {{
-            '{:,.0f}'.format(detalle_empleado.salario_empleado).replace(',',
-            '.')}}
-          </div>
-          <div class="col-md-6">
-            <label for="" class="form-label"> IMAGEN DEL EMPLEADO </label>
-            <br />
-            <img
-              style="width: 200px"
-              src="/static/fotos_empleados/{{ detalle_empleado.foto_empleado }}"
-              alt="imagen-empleado" />
-          </div>
-        </div>
       </div>
     </div>
   </div>
 </div>
 {% else %}
 <h2 class="text-center">
-  No existe el Empleado 😭
+  No existe el Producto 😭
   <hr />
 </h2>
 {% endif %} {% endblock %}

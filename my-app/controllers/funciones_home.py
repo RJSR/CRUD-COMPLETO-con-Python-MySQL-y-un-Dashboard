@@ -297,27 +297,24 @@ def procesar_actualizacion_form_precio(data):
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
                 
                 querySQL = ("""
-                    SELECT 
-                        e.precio_dolar,
-                    FROM tbl_productos AS e
-                    ORDER BY e.id_producto ASC
+                    SELECT *
+                        FROM tbl_productos
+                        WHERE precio_dolar;
                     """)
                 cursor.execute(querySQL)
                 precio_dolar = cursor.fetchall()
 
-                tasa = data.form['tasa']
+                tasa = int(data.form['tasa'])
 
                 precio_bsd = tasa * precio_dolar
 
-                id_producto = data.form['id_producto']
                 
                 querySQL = """
                     UPDATE tbl_productos
                     SET 
                         precio_bsd = %s
-                    WHERE id_producto = %s
                 """
-                values = (precio_bsd, id_producto)
+                values = (precio_bsd)
 
                 cursor.execute(querySQL, values)
                 conexion_MySQLdb.commit()
